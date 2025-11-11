@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Authentication - Flow</title>
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body class="min-h-screen flex items-center justify-center">
+  <div class="text-center">
+    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mb-4"></div>
+    <p class="text-gray-600">Completing authentication...</p>
+  </div>
+
+  <script>
+    // Extract token from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+
+    if (token) {
+      localStorage.setItem('access_token', token);
+      window.location.href = '/';
+    } else {
+      window.location.href = '/login.html';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Flow</title>
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+  <div class="card max-w-lg w-full mx-auto">
+    <div class="text-center mb-16">
+      <h1 class="text-5xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent mb-4 tracking-tight">Flow</h1>
+      <p class="text-gray-600 text-lg">Sign in to manage your workflows</p>
+    </div>
+
+    <div id="error-message" class="hidden mb-6"></div>
+
+    <form id="login-form" class="space-y-6" novalidate>
+      <div>
+        <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          required
+          autocomplete="email"
+          class="input-field text-base"
+          placeholder="you@example.com"
+          aria-label="Email address"
+          aria-required="true"
+        >
+      </div>
+
+      <div>
+        <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+        <div class="input-wrapper">
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+            autocomplete="current-password"
+            class="input-field text-base pr-12"
+            placeholder="••••••••"
+            aria-label="Password"
+            aria-required="true"
+          >
+          <button type="button" id="toggle-password" class="input-icon" aria-label="Toggle password visibility">
+            <svg id="eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            </svg>
+            <svg id="eye-off-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" id="login-button" class="btn-primary w-full mt-8 py-3 text-base font-semibold" aria-label="Sign in">
+        <span id="button-text">Sign In</span>
+        <span id="button-spinner" class="loading-spinner hidden"></span>
+      </button>
+    </form>
+
+    <div class="relative my-8">
+      <div class="absolute inset-0 flex items-center">
+        <div class="w-full border-t border-gray-200"></div>
+      </div>
+      <div class="relative flex justify-center text-sm">
+        <span class="px-4 bg-white text-gray-500 font-medium">Or continue with</span>
+      </div>
+    </div>
+
+    <button id="google-login" class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-white border-2 border-gray-200 rounded-lg hover:bg-gray-50 hover:border-primary-300 hover:shadow-md transition-all duration-200 text-base font-medium text-gray-700 shadow-sm transform hover:-translate-y-0.5 active:translate-y-0" aria-label="Sign in with Google">
+      <svg class="w-6 h-6" viewBox="0 0 48 48" aria-hidden="true">
+        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        <path fill="none" d="M0 0h48v48H0z"/>
+      </svg>
+      <span>Continue with Google</span>
+    </button>
+
+    <p class="mt-8 text-center text-base text-gray-600">
+      Don't have an account?
+      <a href="/register.html" class="text-primary-600 hover:text-primary-700 font-semibold ml-1 transition-colors duration-200">Sign up</a>
+    </p>
+  </div>
+
+  <script type="module" src="/src/pages/login.js"></script>
+</body>
+</html>

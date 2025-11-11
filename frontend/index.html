@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Tasks - Flow</title>
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body class="min-h-screen">
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center">
+          <h1 class="text-xl font-bold text-gray-900">Flow</h1>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <span id="user-name" class="text-sm text-gray-700"></span>
+          <button id="logout-btn" class="text-sm text-gray-600 hover:text-gray-900">
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h2 class="text-3xl font-bold text-gray-900 mb-2">My Tasks</h2>
+      <p class="text-gray-600">Your assigned workflows and tasks</p>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading" class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      <p class="mt-2 text-gray-600">Loading your tasks...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="hidden text-center py-12">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+      </svg>
+      <h3 class="mt-2 text-lg font-medium text-gray-900">No tasks assigned</h3>
+      <p class="mt-1 text-sm text-gray-500">You don't have any tasks assigned to you at the moment.</p>
+    </div>
+
+    <!-- Tasks List -->
+    <div id="tasks-container" class="hidden space-y-6">
+      <!-- Tasks will be dynamically inserted here -->
+    </div>
+  </main>
+
+  <script type="module" src="/src/pages/index.js"></script>
+</body>
+</html>
