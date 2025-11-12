@@ -66,7 +66,7 @@ registerForm.addEventListener('submit', async (e) => {
     const { access_token } = loginResponse.data;
 
     localStorage.setItem('access_token', access_token);
-    window.location.href = '/';
+    window.location.href = '/flow-designer.html';
   } catch (error) {
     console.error('Registration error:', error);
     setLoading(false);
@@ -82,5 +82,5 @@ googleLoginBtn.addEventListener('click', () => {
 
 // Check if already logged in
 if (localStorage.getItem('access_token')) {
-  window.location.href = '/';
+  window.location.href = '/flow-designer.html';
 }

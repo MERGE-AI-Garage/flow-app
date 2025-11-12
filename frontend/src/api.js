@@ -63,6 +63,38 @@ export const auth = {
 export const users = {
   getCurrentUser: () => api.get('/users/me'),
   getMyTasks: () => api.get('/users/me/tasks'),
+  list: () => api.get('/users'),
+};
+
+// Flow Templates API
+export const flowTemplates = {
+  list: () => api.get('/flows'),
+  get: (id) => api.get(`/flows/${id}`),
+  create: (data) => api.post('/flows', data),
+  update: (id, data) => api.put(`/flows/${id}`, data),
+  delete: (id) => api.delete(`/flows/${id}`),
+};
+
+// Flow Stages API
+export const stages = {
+  create: (flowId, data) => api.post(`/flows/${flowId}/stages`, data),
+  update: (flowId, stageId, data) => api.put(`/flows/${flowId}/stages/${stageId}`, data),
+  delete: (flowId, stageId) => api.delete(`/flows/${flowId}/stages/${stageId}`),
+};
+
+// Form Fields API
+export const formFields = {
+  create: (flowId, stageId, data) => api.post(`/flows/${flowId}/stages/${stageId}/fields`, data),
+  update: (flowId, stageId, fieldId, data) => api.put(`/flows/${flowId}/stages/${stageId}/fields/${fieldId}`, data),
+  delete: (flowId, stageId, fieldId) => api.delete(`/flows/${flowId}/stages/${stageId}/fields/${fieldId}`),
+};
+
+// Flow Roles API
+export const flowRoles = {
+  list: (flowId) => api.get(`/flows/${flowId}/roles`),
+  create: (flowId, data) => api.post(`/flows/${flowId}/roles`, data),
+  update: (flowId, roleId, data) => api.put(`/flows/${flowId}/roles/${roleId}`, data),
+  delete: (flowId, roleId) => api.delete(`/flows/${flowId}/roles/${roleId}`),
 };
 
 export default api;

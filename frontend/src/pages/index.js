@@ -90,6 +90,21 @@ function renderTaskCard(task) {
   `;
 }
 
+// Hamburger menu toggle
+const menuToggle = document.getElementById('menu-toggle');
+const mobileMenu = document.getElementById('mobile-menu');
+
+menuToggle.addEventListener('click', () => {
+  mobileMenu.classList.toggle('hidden');
+});
+
+// Close menu when clicking outside
+document.addEventListener('click', (e) => {
+  if (!menuToggle.contains(e.target) && !mobileMenu.contains(e.target)) {
+    mobileMenu.classList.add('hidden');
+  }
+});
+
 // Logout handler
 logoutBtn.addEventListener('click', () => {
   localStorage.removeItem('access_token');

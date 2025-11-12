@@ -1,0 +1,186 @@
+name: Deploy to Cloud Run (Development)
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  PROJECT_ID: magi-development-475815
+  REGION: us-central1
+  SERVICE_NAME: magi-dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER_DEV }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT_DEV }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+      - name: Build and Push Docker image
+        run: |
+          docker build \
+            --build-arg VITE_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
+            --build-arg VITE_GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }} \
+            --build-arg VITE_GOOGLE_APP_ID=147516047715 \
+            -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/magi/${{ env.SERVICE_NAME }}:${{ github.sha }} .
+          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/magi/${{ env.SERVICE_NAME }}:${{ github.sha }}
+
+      - name: Get Current Revision (for rollback)
+        id: get_revision
+        continue-on-error: true
+        run: |
+          # Store current revision in case we need to rollback
+          CURRENT_REVISION=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --platform managed \
+            --region ${{ env.REGION }} \
+            --project ${{ env.PROJECT_ID }} \
+            --format='value(status.latestReadyRevisionName)' 2>/dev/null || echo "")
+          echo "CURRENT_REVISION=$CURRENT_REVISION" >> $GITHUB_OUTPUT
+          if [ -n "$CURRENT_REVISION" ]; then
+            echo "Current revision: $CURRENT_REVISION (will rollback to this if deployment fails)"
+          else
+            echo "No existing revision found (first deployment)"
+          fi
+
+      - name: Get or Set Service URL
+        id: get_url
+        run: |
+          # Try to get existing service URL, or use placeholder for first deployment
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --platform managed \
+            --region ${{ env.REGION }} \
+            --project ${{ env.PROJECT_ID }} \
+            --format='value(status.url)' 2>/dev/null || echo "https://magi-dev-placeholder.run.app")
+          echo "SERVICE_URL=$SERVICE_URL" >> $GITHUB_OUTPUT
+          echo "Using SERVICE_URL: $SERVICE_URL"
+
+      - name: Deploy to Cloud Run
+        id: deploy
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/magi/${{ env.SERVICE_NAME }}:${{ github.sha }} \
+            --platform managed \
+            --region ${{ env.REGION }} \
+            --allow-unauthenticated \
+            --project ${{ env.PROJECT_ID }} \
+            --add-cloudsql-instances ${{ secrets.CLOUD_SQL_CONNECTION_NAME_DEV }} \
+            --set-env-vars USE_CLOUD_SQL=true \
+            --set-env-vars CLOUD_SQL_CONNECTION_NAME=${{ secrets.CLOUD_SQL_CONNECTION_NAME_DEV }} \
+            --set-env-vars DB_USER=${{ secrets.DB_USER_DEV }} \
+            --set-env-vars DB_PASS=${{ secrets.DB_PASS_DEV }} \
+            --set-env-vars DB_NAME=${{ secrets.DB_NAME_DEV }} \
+            --set-env-vars SERVICE_URL=${{ steps.get_url.outputs.SERVICE_URL }} \
+            --set-env-vars ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }} \
+            --set-env-vars GROQ_API_KEY=${{ secrets.GROQ_API_KEY }} \
+            --set-env-vars GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
+            --set-env-vars GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
+            --set-env-vars USE_LOCAL_STORAGE=false \
+            --set-env-vars GCS_BUCKET=magi-context-files-dev \
+            --set-env-vars GCP_PROJECT=${{ env.PROJECT_ID }} \
+            --set-env-vars GCS_SERVICE_ACCOUNT_EMAIL=147516047715-compute@developer.gserviceaccount.com \
+            --update-secrets GOOGLE_API_KEY=GOOGLE_API_KEY:latest
+
+      - name: Get Service URL
+        id: final_url
+        run: |
+          SERVICE_URL=$(gcloud run services list \
+            --filter="metadata.name=${{ env.SERVICE_NAME }}" \
+            --region ${{ env.REGION }} \
+            --format='value(status.url)' \
+            --project ${{ env.PROJECT_ID }})
+          echo "SERVICE_URL=$SERVICE_URL" >> $GITHUB_OUTPUT
+          echo "Service URL: $SERVICE_URL"
+
+      - name: Health Check
+        id: health_check
+        run: |
+          echo "Performing health check on deployed service..."
+          SERVICE_URL="${{ steps.final_url.outputs.SERVICE_URL }}"
+
+          # Wait for service to be ready (max 2 minutes)
+          MAX_ATTEMPTS=12
+          ATTEMPT=0
+
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            echo "Health check attempt $((ATTEMPT + 1))/$MAX_ATTEMPTS..."
+
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$SERVICE_URL" || echo "000")
+
+            if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "302" ]; then
+              echo "✅ Health check passed! Service is responding with HTTP $HTTP_CODE"
+              exit 0
+            fi
+
+            echo "Service returned HTTP $HTTP_CODE, waiting 10 seconds..."
+            sleep 10
+            ATTEMPT=$((ATTEMPT + 1))
+          done
+
+          echo "❌ Health check failed after $MAX_ATTEMPTS attempts"
+          exit 1
+
+      - name: Display Deployment Success
+        if: success()
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "🚀 Deployment to DEV completed successfully!"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "📍 Service URL: ${{ steps.final_url.outputs.SERVICE_URL }}"
+          echo "🏷️  Image: ${{ github.sha }}"
+          echo "✅ Health check: Passed"
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+          # Add to workflow summary
+          echo "## 🚀 Deployment to DEV Successful" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Project:** ${{ env.PROJECT_ID }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Service:** ${{ env.SERVICE_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Service URL" >> $GITHUB_STEP_SUMMARY
+          echo "- **App:** ${{ steps.final_url.outputs.SERVICE_URL }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Health Check:** ✅ Passed" >> $GITHUB_STEP_SUMMARY
+
+      - name: Rollback on Failure
+        if: failure() && steps.get_revision.outputs.CURRENT_REVISION != ''
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "❌ Deployment or health check failed!"
+          echo "🔄 Rolling back to previous revision..."
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+          gcloud run services update-traffic ${{ env.SERVICE_NAME }} \
+            --to-revisions=${{ steps.get_revision.outputs.CURRENT_REVISION }}=100 \
+            --platform managed \
+            --region ${{ env.REGION }} \
+            --project ${{ env.PROJECT_ID }}
+
+          echo "✅ Rollback completed. Service restored to revision: ${{ steps.get_revision.outputs.CURRENT_REVISION }}"
+
+          # Verify rollback
+          CURRENT=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --platform managed \
+            --region ${{ env.REGION }} \
+            --project ${{ env.PROJECT_ID }} \
+            --format='value(status.latestReadyRevisionName)')
+          echo "Current active revision: $CURRENT"

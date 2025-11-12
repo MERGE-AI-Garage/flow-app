@@ -64,8 +64,8 @@ loginForm.addEventListener('submit', async (e) => {
     // Store token
     localStorage.setItem('access_token', access_token);
 
-    // Redirect to My Tasks
-    window.location.href = '/';
+    // Redirect to Flow Designer
+    window.location.href = '/flow-designer.html';
   } catch (error) {
     console.error('Login error:', error);
     setLoading(false);
@@ -81,5 +81,5 @@ googleLoginBtn.addEventListener('click', () => {
 
 // Check if already logged in
 if (localStorage.getItem('access_token')) {
-  window.location.href = '/';
+  window.location.href = '/flow-designer.html';
 }
