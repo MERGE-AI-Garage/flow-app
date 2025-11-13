@@ -17,6 +17,10 @@ build/
 .env.local
 .env.*.local
 
+# Deployment configuration
+.deployment-config.txt
+github-secrets.txt
+
 # IDEs
 .vscode/
 .idea/
