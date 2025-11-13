@@ -3,7 +3,7 @@ name: Deploy to Cloud Run (Development)
 on:
   push:
     branches:
-      - main  # Change this to your deployment branch
+      - master  # Deploy from master branch
 
 env:
   PROJECT_ID: flow-proto-478014  # Update with your GCP project ID
