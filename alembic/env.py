@@ -10,7 +10,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from backend.app.core.database import Base
 from backend.app.core.config import settings
-from backend.app.models import user  # Import all models
+# Import all models to ensure they're registered with SQLAlchemy metadata
+from backend.app.models import user, flow, flow_instance
 
 # this is the Alembic Config object
 config = context.config

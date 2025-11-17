@@ -1,5 +1,14 @@
 from .user import User, UserRole
 from .flow import FlowTemplate, Stage, FormField, FlowRole, AssignmentType, FieldType
+from .flow_instance import (
+    FlowInstance,
+    TaskInstance,
+    FormDataValue,
+    ActivityLog,
+    FlowStatus,
+    TaskStatus,
+    ActivityType,
+)
 
 __all__ = [
     "User",
@@ -10,4 +19,11 @@ __all__ = [
     "FlowRole",
     "AssignmentType",
     "FieldType",
+    "FlowInstance",
+    "TaskInstance",
+    "FormDataValue",
+    "ActivityLog",
+    "FlowStatus",
+    "TaskStatus",
+    "ActivityType",
 ]

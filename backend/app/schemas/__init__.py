@@ -14,6 +14,23 @@ from .flow import (
     FlowRoleUpdate,
     FlowRoleResponse,
 )
+from .flow_instance import (
+    FlowInstanceCreate,
+    FlowInstanceUpdate,
+    FlowInstanceResponse,
+    FlowInstanceDetailResponse,
+    FlowInstanceListResponse,
+    TaskInstanceCreate,
+    TaskInstanceUpdate,
+    TaskInstanceResponse,
+    TaskInstanceDetailResponse,
+    FormDataValueCreate,
+    FormDataValueResponse,
+    ActivityLogCreate,
+    ActivityLogResponse,
+    TaskCompleteRequest,
+    TaskCompleteResponse,
+)
 
 __all__ = [
     "UserCreate",
@@ -32,4 +49,19 @@ __all__ = [
     "FlowRoleCreate",
     "FlowRoleUpdate",
     "FlowRoleResponse",
+    "FlowInstanceCreate",
+    "FlowInstanceUpdate",
+    "FlowInstanceResponse",
+    "FlowInstanceDetailResponse",
+    "FlowInstanceListResponse",
+    "TaskInstanceCreate",
+    "TaskInstanceUpdate",
+    "TaskInstanceResponse",
+    "TaskInstanceDetailResponse",
+    "FormDataValueCreate",
+    "FormDataValueResponse",
+    "ActivityLogCreate",
+    "ActivityLogResponse",
+    "TaskCompleteRequest",
+    "TaskCompleteResponse",
 ]
