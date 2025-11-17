@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from .core.config import settings
-from .routers import auth, users, flows
+from .routers import auth, users, flows, flow_instances, tasks
 
 app = FastAPI(
     title="Flow - Workflow Management API",
@@ -25,6 +25,8 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
 app.include_router(flows.router, prefix="/api")
+app.include_router(flow_instances.router, prefix="/api")
+app.include_router(tasks.router, prefix="/api")
 
 
 @app.get("/health")

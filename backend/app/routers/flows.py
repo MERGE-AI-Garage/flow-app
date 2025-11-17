@@ -25,28 +25,17 @@ router = APIRouter(prefix="/flows", tags=["flows"])
 
 # ========== Flow Template Endpoints ==========
 
-@router.get("", response_model=List[FlowTemplateListResponse])
+@router.get("", response_model=List[FlowTemplateResponse])
 def list_flow_templates(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """List all flow templates with stage count"""
-    flows = db.query(FlowTemplate).filter(FlowTemplate.is_active == True).all()
+    """List all flow templates with stages"""
+    flows = db.query(FlowTemplate).options(
+        selectinload(FlowTemplate.stages).selectinload(Stage.form_fields)
+    ).filter(FlowTemplate.is_active == True).all()
 
-    # Transform to include stage_count
-    result = []
-    for flow in flows:
-        result.append({
-            "id": flow.id,
-            "name": flow.name,
-            "description": flow.description,
-            "is_active": flow.is_active,
-            "stage_count": len(flow.stages),
-            "created_at": flow.created_at,
-            "updated_at": flow.updated_at,
-        })
-
-    return result
+    return flows
 
 
 @router.post("", response_model=FlowTemplateResponse, status_code=status.HTTP_201_CREATED)

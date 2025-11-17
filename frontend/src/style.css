@@ -33,7 +33,22 @@
     @apply absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer transition-colors duration-200;
   }
 
-  .card {
+  /* Select dropdown styling - ensures light background */
+  .select-field {
+    @apply bg-white text-gray-900 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 hover:border-gray-400 disabled:bg-gray-50 disabled:cursor-not-allowed;
+  }
+
+  /* Override DaisyUI select defaults to ensure light theme */
+  select.select {
+    @apply bg-white text-gray-900;
+  }
+
+  select.select option {
+    @apply bg-white text-gray-900;
+  }
+
+  /* Auth/Login card styling - NOT for general cards */
+  .auth-card {
     @apply bg-white rounded-2xl shadow-xl p-10 backdrop-blur-sm;
     animation: fadeInUp 0.5s ease-out;
   }

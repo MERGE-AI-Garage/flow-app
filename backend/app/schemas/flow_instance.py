@@ -53,12 +53,40 @@ class TaskInstanceResponse(TaskInstanceBase):
         from_attributes = True
 
 
+# Forward declaration for circular reference
+class FlowInstanceSummary(BaseModel):
+    """Simplified flow instance info for task responses"""
+    id: int
+    flow_template_id: int
+    title: str
+    description: Optional[str] = None
+    status: FlowStatus
+    started_at: datetime
+    completed_at: Optional[datetime] = None
+    flow_template: Optional[Any] = None  # Will contain flow template basic info
+
+    class Config:
+        from_attributes = True
+
+
+class StageSummary(BaseModel):
+    """Simplified stage info for task responses"""
+    id: int
+    name: str
+    order: int
+
+    class Config:
+        from_attributes = True
+
+
 # TaskInstance response with stage and flow info (for "My Tasks" view)
 class TaskInstanceDetailResponse(TaskInstanceResponse):
     stage_name: str
     flow_title: str
     flow_template_name: str
     elapsed_time_seconds: Optional[int] = None  # Calculated field
+    flow_instance: Optional[FlowInstanceSummary] = None  # Full flow instance object
+    stage: Optional[StageSummary] = None  # Stage object
 
 
 # ActivityLog Schemas

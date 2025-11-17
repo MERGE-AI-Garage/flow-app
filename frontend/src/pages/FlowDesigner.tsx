@@ -3,7 +3,6 @@ import { users, flowTemplates, stages, formFields } from '../api'
 import {
   User,
   FlowTemplate,
-  FlowTemplateListItem,
   Stage,
   FormField,
   FieldType,
@@ -87,9 +86,9 @@ function SortableStageCard({ stage, index, allUsers, isEditMode, onEditStage }: 
       onClick={() => isEditMode && onEditStage(stage)}
       className={`p-4 rounded-lg border transition-all ${
         isEditMode
-          ? 'cursor-pointer hover:border-primary-300 hover:bg-primary-50'
+          ? 'cursor-pointer hover:border-primary hover:bg-slate-50'
           : 'cursor-default'
-      } border-gray-200 bg-gray-50`}
+      } border-slate-200 bg-slate-50`}
     >
       <div className="flex items-center gap-4">
         {isEditMode && (
@@ -99,19 +98,19 @@ function SortableStageCard({ stage, index, allUsers, isEditMode, onEditStage }: 
             className="flex-shrink-0 cursor-grab active:cursor-grabbing touch-none"
             onClick={(e) => e.stopPropagation()}
           >
-            <svg className="w-6 h-6 text-gray-400 hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 text-slate-400 hover:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 8h16M4 16h16" />
             </svg>
           </div>
         )}
         <div className="flex-shrink-0">
-          <div className="w-10 h-10 rounded-lg bg-primary-700 text-white flex items-center justify-center font-bold shadow-sm">
+          <div className="w-10 h-10 rounded-lg bg-blue-100 text-primary flex items-center justify-center font-bold shadow-sm">
             {index + 1}
           </div>
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-gray-900 text-base mb-1">{stage.name}</h3>
-          <div className="flex items-center gap-3 text-sm text-gray-600">
+          <h3 className="font-semibold text-slate-900 text-base mb-1">{stage.name}</h3>
+          <div className="flex items-center gap-3 text-sm text-slate-600">
             <span className="flex items-center gap-1">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -135,7 +134,7 @@ function SortableStageCard({ stage, index, allUsers, isEditMode, onEditStage }: 
         </div>
         {isEditMode && (
           <div className="flex-shrink-0">
-            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
             </svg>
           </div>
@@ -155,13 +154,12 @@ function FlowDesigner(): React.ReactElement {
     updated_at: new Date().toISOString()
   })
   const [currentFlow, setCurrentFlow] = useState<FlowTemplate | null>(null)
-  const [allTemplates, setAllTemplates] = useState<FlowTemplateListItem[]>([])
+  const [allTemplates, setAllTemplates] = useState<FlowTemplate[]>([])
   const [allUsers, setAllUsers] = useState<User[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
   const [editingStage, setEditingStage] = useState<Stage | null>(null)
-  const [modalKey, setModalKey] = useState<number>(0)
 
   // Drag and drop sensors
   const sensors = useSensors(
@@ -245,11 +243,10 @@ function FlowDesigner(): React.ReactElement {
       setCurrentFlow(safeFlow)
       setIsEditMode(false)
 
+      // Update template in list with fresh data
       const currentTemplates = Array.isArray(allTemplates) ? allTemplates : []
       setAllTemplates(currentTemplates.map(template =>
-        template.id === flowId
-          ? { ...template, stage_count: safeFlow.stages.length }
-          : template
+        template.id === flowId ? safeFlow : template
       ))
     } catch (error) {
       console.error('Failed to load flow:', error)
@@ -276,8 +273,8 @@ function FlowDesigner(): React.ReactElement {
     console.log('📝 Updated stage assignment_target_id:', updatedStage?.assignment_target_id)
 
     setCurrentFlow({ ...currentFlow, stages: updatedStages })
-    setModalKey(prev => prev + 1) // Force modal re-render
-    console.log('📝 State updated, modal key incremented')
+    // Removed setModalKey - was causing input to lose focus on every keystroke
+    console.log('📝 State updated')
   }
 
   const updateStageFields = (stageId: number, updates: Partial<Stage>): void => {
@@ -293,8 +290,8 @@ function FlowDesigner(): React.ReactElement {
     console.log('📝 Updated stage assignment_target_id:', updatedStage?.assignment_target_id)
 
     setCurrentFlow({ ...currentFlow, stages: updatedStages })
-    setModalKey(prev => prev + 1) // Force modal re-render
-    console.log('📝 State updated, modal key incremented')
+    // Removed setModalKey - was causing input to lose focus on every keystroke
+    console.log('📝 State updated')
   }
 
   const addStage = async (): Promise<void> => {
@@ -545,7 +542,7 @@ function FlowDesigner(): React.ReactElement {
         {/* LEFT COLUMN: Flow Templates List */}
         <aside className="lg:col-span-3 space-y-4">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold text-gray-900">Flow Templates</h2>
+            <h2 className="text-lg font-bold text-slate-900">Flow Templates</h2>
             <button onClick={createNewFlow} className="btn btn-primary btn-sm">
               <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -558,10 +555,10 @@ function FlowDesigner(): React.ReactElement {
           <div className="space-y-2">
             {(allTemplates || []).length === 0 ? (
               <div className="text-center py-8">
-                <svg className="mx-auto h-10 w-10 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="mx-auto h-10 w-10 text-slate-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <p className="text-sm text-gray-600 mb-4">No flow templates yet</p>
+                <p className="text-sm text-slate-600 mb-4">No flow templates yet</p>
                 <button className="btn btn-sm btn-ghost text-primary" onClick={createNewFlow}>
                   Create your first flow
                 </button>
@@ -573,19 +570,19 @@ function FlowDesigner(): React.ReactElement {
                   onClick={() => loadFlow(template.id)}
                   className={`cursor-pointer p-4 rounded-lg border transition-colors relative group ${
                     currentFlow?.id === template.id
-                      ? 'bg-primary-50 border-primary-300'
-                      : 'bg-white border-gray-200 hover:bg-gray-50'
+                      ? 'bg-blue-50 border-primary'
+                      : 'bg-white border-slate-200 hover:bg-slate-50'
                   }`}
                 >
                   <div className="flex items-start justify-between mb-1">
-                    <h3 className="font-semibold text-sm text-gray-900 line-clamp-1 flex-1 pr-2">
+                    <h3 className="font-semibold text-sm text-slate-900 line-clamp-1 flex-1 pr-2">
                       {template.name}
                     </h3>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-slate-500">
                         {currentFlow?.id === template.id
                           ? (currentFlow.stages?.length || 0)
-                          : template.stage_count} stages
+                          : (template.stages?.length || 0)} stages
                       </span>
                       <button
                         onClick={(e) => deleteFlow(template.id, e)}
@@ -598,7 +595,7 @@ function FlowDesigner(): React.ReactElement {
                       </button>
                     </div>
                   </div>
-                  <p className="text-xs text-gray-600 line-clamp-2">
+                  <p className="text-xs text-slate-600 line-clamp-2">
                     {template.description || 'No description'}
                   </p>
                 </div>
@@ -610,13 +607,13 @@ function FlowDesigner(): React.ReactElement {
         {/* RIGHT COLUMN: Flow Editor */}
         <section className="lg:col-span-9">
           {!currentFlow ? (
-            <div className="card bg-white shadow-sm border border-gray-200">
+            <div className="card bg-white shadow-sm border border-slate-200">
               <div className="card-body text-center p-12">
-                <svg className="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="mx-auto h-16 w-16 text-slate-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Welcome to Flow Designer</h3>
-                <p className="text-gray-600 mb-6">Select a flow template from the left or create a new one to get started</p>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">Welcome to Flow Designer</h3>
+                <p className="text-slate-600 mb-6">Select a flow template from the left or create a new one to get started</p>
                 <button className="btn btn-primary" onClick={createNewFlow}>
                   Create New Flow
                 </button>
@@ -625,7 +622,7 @@ function FlowDesigner(): React.ReactElement {
           ) : (
             <>
               {/* Flow Header */}
-              <div className="card bg-white shadow-sm border border-gray-200 mb-6">
+              <div className="card bg-white shadow-sm border border-slate-200 mb-6">
                 <div className="card-body">
                   {isEditMode ? (
                     <>
@@ -636,14 +633,14 @@ function FlowDesigner(): React.ReactElement {
                             value={currentFlow.name}
                             onChange={(e) => updateFlowField('name', e.target.value)}
                             placeholder="Flow Name"
-                            className="input w-full text-2xl font-bold px-3 py-2 bg-white border border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none"
+                            className="input input-bordered w-full text-2xl font-bold bg-white"
                           />
                           <textarea
                             value={currentFlow.description || ''}
                             onChange={(e) => updateFlowField('description', e.target.value)}
                             placeholder="Add a description..."
                             rows={2}
-                            className="textarea w-full mt-2 text-sm px-3 py-2 bg-white border border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none resize-none"
+                            className="textarea textarea-bordered w-full mt-2 text-sm resize-none bg-white"
                           />
                         </div>
 
@@ -688,9 +685,9 @@ function FlowDesigner(): React.ReactElement {
                   ) : (
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <h1 className="text-2xl font-bold text-gray-900 mb-2">{currentFlow.name}</h1>
+                        <h1 className="text-2xl font-bold text-slate-900 mb-2">{currentFlow.name}</h1>
                         {currentFlow.description && (
-                          <p className="text-sm text-gray-600">{currentFlow.description}</p>
+                          <p className="text-sm text-slate-600">{currentFlow.description}</p>
                         )}
                       </div>
                       <button
@@ -708,10 +705,10 @@ function FlowDesigner(): React.ReactElement {
               </div>
 
               {/* Stages Section */}
-              <div className="card bg-white shadow-sm border border-gray-200">
+              <div className="card bg-white shadow-sm border border-slate-200">
                 <div className="card-body">
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-bold text-gray-900">Workflow Stages</h2>
+                    <h2 className="text-xl font-bold text-slate-900">Workflow Stages</h2>
                     {isEditMode && (
                       <button onClick={addStage} className="btn btn-primary btn-sm">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -723,12 +720,12 @@ function FlowDesigner(): React.ReactElement {
                   </div>
 
                   {currentFlow.stages?.length === 0 ? (
-                    <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-lg">
-                      <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="text-center py-12 border-2 border-dashed border-slate-300 rounded-lg">
+                      <svg className="mx-auto h-12 w-12 text-slate-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                       </svg>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">No stages yet</h3>
-                      <p className="text-sm text-gray-600 mb-6">Start building your workflow by adding the first stage</p>
+                      <h3 className="text-lg font-semibold text-slate-900 mb-2">No stages yet</h3>
+                      <p className="text-sm text-slate-600 mb-6">Start building your workflow by adding the first stage</p>
                       <button onClick={addStage} className="btn btn-primary">
                         Add First Stage
                       </button>
@@ -773,7 +770,7 @@ function FlowDesigner(): React.ReactElement {
 
                 return (
                   <StageEditModal
-                    key={`modal-${editingStage.id}-${currentStageData.assignment_target_id}-${modalKey}`}
+                    key={`modal-${editingStage.id}-${currentStageData.assignment_target_id}`}
                     stage={currentStageData}
                     stageNumber={currentFlow.stages.findIndex(s => s.id === editingStage.id) + 1}
                     allUsers={allUsers}
@@ -825,7 +822,7 @@ function StageEditModal({
         {/* Modal Header */}
         <div className="bg-gray-800 px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg">
+            <div className="w-12 h-12 rounded-full bg-blue-100 text-primary flex items-center justify-center font-bold text-lg">
               {stageNumber}
             </div>
             <div>
@@ -882,7 +879,7 @@ function StageEditModal({
 
                   console.log('🎯 Updated stage assignment')
                 }}
-                className="select select-bordered bg-white w-full"
+                className="select select-bordered bg-white w-full pr-10 border-2 border-gray-300 focus:border-primary"
               >
                 <option value="">Select user...</option>
                 {Array.isArray(allUsers) && allUsers.map(user => (

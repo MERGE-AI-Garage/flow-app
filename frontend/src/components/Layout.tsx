@@ -1,10 +1,20 @@
 import React from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
+import { useUser } from '../contexts/UserContext'
 
 function Layout(): React.ReactElement {
   const location = useLocation()
+  const { currentUser, allUsers, setCurrentUser, loading } = useUser()
 
   const isActive = (path: string): boolean => location.pathname === path
+
+  const handleUserChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
+    const userId = parseInt(event.target.value)
+    const user = allUsers.find(u => u.id === userId)
+    if (user) {
+      setCurrentUser(user)
+    }
+  }
 
   return (
     <div className="min-h-screen">
@@ -39,9 +49,28 @@ function Layout(): React.ReactElement {
               </Link>
             </div>
 
-            {/* Right side: User info */}
+            {/* Right side: User dropdown */}
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-700">Test User</span>
+              {loading ? (
+                <span className="text-sm text-gray-500">Loading...</span>
+              ) : (
+                <select
+                  className="select select-bordered select-sm max-w-xs bg-white text-gray-900 border-2 border-gray-300 px-4 pr-10"
+                  value={currentUser?.id || ''}
+                  onChange={handleUserChange}
+                  disabled={allUsers.length === 0}
+                >
+                  {allUsers.length === 0 ? (
+                    <option value="">No users available</option>
+                  ) : (
+                    allUsers.map(user => (
+                      <option key={user.id} value={user.id}>
+                        {user.full_name || user.email}
+                      </option>
+                    ))
+                  )}
+                </select>
+              )}
             </div>
           </div>
         </div>

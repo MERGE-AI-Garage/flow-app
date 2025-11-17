@@ -177,3 +177,44 @@ export interface CurrentUserResponse {
   full_name: string | null;
   id: number;
 }
+
+// Flow Instance Request/Response Types
+export interface CreateFlowInstanceRequest {
+  flow_template_id: number;
+  title: string;
+  description?: string;
+}
+
+export interface FlowInstanceDetailResponse {
+  id: number;
+  flow_template_id: number;
+  title: string;
+  description: string | null;
+  status: FlowStatus;
+  current_stage_id: number | null;
+  current_assignee_id: number | null;
+  requester_user_id: number;
+  started_at: string;
+  completed_at: string | null;
+  elapsed_time: string;
+  flow_template: FlowTemplate;
+  current_stage: Stage | null;
+  current_assignee: User | null;
+  initiator: User;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TaskInstanceDetailResponse extends TaskInstance {
+  flow_instance?: FlowInstanceDetailResponse;
+  stage?: Stage;
+}
+
+export interface CompleteTaskRequest {
+  form_data: Record<number, any>;
+}
+
+export interface TaskCompleteResponse {
+  message: string;
+  flow_instance: FlowInstanceDetailResponse;
+}

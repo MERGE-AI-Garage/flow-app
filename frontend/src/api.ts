@@ -13,6 +13,11 @@ import {
   CreateFormFieldRequest,
   UpdateFormFieldRequest,
   TaskInstance,
+  CreateFlowInstanceRequest,
+  FlowInstanceDetailResponse,
+  TaskInstanceDetailResponse,
+  CompleteTaskRequest,
+  TaskCompleteResponse,
 } from './types';
 
 const API_BASE_URL = '/api';
@@ -85,8 +90,10 @@ export const auth = {
 export const users = {
   getCurrentUser: (): Promise<AxiosResponse<CurrentUserResponse>> =>
     api.get('/users/me'),
-  getMyTasks: (): Promise<AxiosResponse<TaskInstance[]>> =>
+  getMyTasks: (): Promise<AxiosResponse<TaskInstanceDetailResponse[]>> =>
     api.get('/users/me/tasks'),
+  getUserTasks: (userId: number): Promise<AxiosResponse<TaskInstanceDetailResponse[]>> =>
+    api.get(`/users/${userId}/tasks`),
   list: (): Promise<AxiosResponse<User[]>> => api.get('/users'),
 };
 
@@ -159,6 +166,31 @@ export const flowRoles = {
     api.put(`/flows/${flowId}/roles/${roleId}`, data),
   delete: (flowId: number, roleId: number): Promise<AxiosResponse<void>> =>
     api.delete(`/flows/${flowId}/roles/${roleId}`),
+};
+
+// Flow Instances API
+export const flowInstances = {
+  create: (
+    data: CreateFlowInstanceRequest
+  ): Promise<AxiosResponse<FlowInstanceDetailResponse>> =>
+    api.post('/flow-instances', data),
+  get: (id: number): Promise<AxiosResponse<FlowInstanceDetailResponse>> =>
+    api.get(`/flow-instances/${id}`),
+  list: (status?: string): Promise<AxiosResponse<FlowInstanceDetailResponse[]>> =>
+    api.get('/flow-instances', { params: status ? { status } : {} }),
+};
+
+// Tasks API
+export const tasks = {
+  get: (
+    taskId: number
+  ): Promise<AxiosResponse<TaskInstanceDetailResponse>> =>
+    api.get(`/tasks/${taskId}`),
+  complete: (
+    taskId: number,
+    data: CompleteTaskRequest
+  ): Promise<AxiosResponse<TaskCompleteResponse>> =>
+    api.post(`/tasks/${taskId}/complete`, data),
 };
 
 export default api;
